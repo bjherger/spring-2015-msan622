@@ -14,7 +14,16 @@
         }
 
         .axis {
-            font: 10px sans-serif;
+            font: 12px sans-serif;
+            fill: steelblue;
+        }
+        .y.axis line {
+            stroke: grey;
+            stroke-width: .5px;
+        }
+
+        .axis:hover {
+            fill: brown;
         }
 
         .axis path,
@@ -34,7 +43,8 @@
 
 <h1>Title!</h1>
 <p>Text!</p>
-
+<input type="text" id="field1">
+<input type="text" id="field2">
 <div class="chart"></div>
 
 <!--Load d3-->
@@ -42,10 +52,14 @@
 
 <!--Create cart-->
 <script>
+    document.getElementById("field1").onkeyup = function() {
+        create_plot(this.value)
+        document.getElementById("field2").value = this.value;
+    }
+    function get_query_array(query_full) {
 
-    function get_query_array() {
-        var query_full = decodeURI(window.location.search);
-        var query_subset = query_full.replace(/[^A-z]/ig, '');
+        console.log(query_full)
+        var query_subset = query_full.replace(/[^A-z]/ig, '').toLowerCase();
         var query_array = query_subset.split("");
 
         return query_array
@@ -59,67 +73,81 @@
         return counts
     }
 
-    // Find freq count of A-z letters in query
-    var frequencies = find_frequencies(get_query_array());
-    console.log(frequencies);
-    var data = d3.entries(frequencies);
+    function create_plot(text) {
+        // Find freq count of A-z letters in query
+        var query_array = get_query_array(text)
+        var frequencies = find_frequencies(query_array);
+        console.log(frequencies);
+        var data = d3.entries(frequencies);
 
-    // Setup constants for the chart
-    var margin = {top: 20, right: 20, bottom: 30, left: 40},
-            width = 500 - margin.left - margin.right,
-            height = 250 - margin.top - margin.bottom;
-    // Setup axes
-    var x = d3.scale.ordinal()
-            .rangeRoundBands([0, width], .1);
-    var y = d3.scale.linear().range([height,0]);
+        // Setup constants for the chart
+        var margin = {top: 20, right: 20, bottom: 30, left: 40},
+                width = 500 - margin.left - margin.right,
+                height = 250 - margin.top - margin.bottom;
+        // Setup axes
+        var x = d3.scale.ordinal()
+                .rangeRoundBands([0, width], .1);
+        var y = d3.scale.linear().range([height, 0]);
 
-    x.domain(data.map(function(d) { return d.key; }));
-    y.domain([0, d3.max(data, function(d) { return d.value; })])
 
-    var barWidth = width / data.length;
+        query_array.sort()
+        x.domain(query_array.sort());
+        y.domain([0, d3.max(data, function (d) {
+            return d.value;
+        })])
 
-    var xAxis = d3.svg.axis()
-            .scale(x)
-            .orient("bottom");
+        var xAxis = d3.svg.axis()
+                .scale(x)
+                .orient("bottom");
 
-    var yAxis = d3.svg.axis()
-            .scale(y)
-            .orient("left")
-            .ticks(10, "%");
+        var yAxis = d3.svg.axis()
+                .scale(y)
+                .orient("left")
+                .ticks(5)
+                .tickSize(-width);
 
-    // Create svg element
-    var svg = d3.select("body").append("svg")
-            .attr("width", width + margin.left + margin.right)
-            .attr("height", height + margin.top + margin.bottom)
-            .append("g")
-            .attr("transform", "translate(" + margin.left + "," + margin.top + ")");
+        // Create clean svg element
+        d3.select("svg").remove()
+        var svg = d3.select("body").append("svg")
+                .attr("width", width + margin.left + margin.right)
+                .attr("height", height + margin.top + margin.bottom)
+                .append("g")
+                .attr("transform", "translate(" + margin.left + "," + margin.top + ")");
 
-    // X axis
-    svg.append("g")
-            .attr("class", "x axis")
-            .attr("transform", "translate(0," + height + ")")
-            .call(xAxis);
+        // X axis
+        svg.append("g")
+                .attr("class", "x axis")
+                .attr("transform", "translate(0," + height + ")")
+                .call(xAxis);
 
-    // Y axis
-    svg.append("g")
-            .attr("class", "y axis")
-            .call(yAxis)
-            .append("text")
-            .attr("transform", "rotate(-90)")
-            .attr("y", 6)
-            .attr("dy", ".71em")
-            .style("text-anchor", "end")
-            .text("Frequency");
+        // Y axis
+        svg.append("g")
+                .attr("class", "y axis")
+                .call(yAxis)
+                .append("text")
+                .attr("transform", "rotate(-90)")
+                .attr("y", 6)
+                .attr("dy", ".71em")
+                .style("text-anchor", "end")
+                .text("Count");
 
-    svg.selectAll(".bar")
-            .data(data)
-            .enter().append("rect")
-            .attr("class", "bar")
-            .attr("x", function(d) { return x(d.key); })
-            .attr("width", x.rangeBand())
-            .attr("y", function(d) { return y(+d.value); })
-            .attr("height", function(d) { return height - y(+d.value); });
-
+        // Bars
+        svg.selectAll(".bar")
+                .data(data)
+                .enter().append("rect")
+                .attr("class", "bar")
+                .attr("x", function (d) {
+                    return x(d.key);
+                })
+                .attr("width", x.rangeBand())
+                .attr("y", function (d) {
+                    return y(+d.value);
+                })
+                .attr("height", function (d) {
+                    return height - y(+d.value);
+                });
+    }
+    create_plot(decodeURI(window.location.search))
 
 
 </script>
