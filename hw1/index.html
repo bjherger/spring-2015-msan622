@@ -27,11 +27,6 @@
         }
 
         .axis path,
-        .axis line {
-            fill: none;
-            stroke: #000;
-            shape-rendering: crispEdges;
-        }
 
         .x.axis path {
             display: none;
@@ -41,10 +36,10 @@
 </head>
 <body>
 
-<h1>Title!</h1>
-<p>Text!</p>
-<input type="text" id="field1">
-<input type="text" id="field2">
+<h1>Letters</h1>
+<p>This script will plot the counts of letters either in the query string, or in the input box. </p>
+Custom input: <input type="text" id="field1">
+<h2 id="something_bad"></h2>
 <div class="chart"></div>
 
 <!--Load d3-->
@@ -54,7 +49,6 @@
 <script>
     document.getElementById("field1").onkeyup = function() {
         create_plot(this.value)
-        document.getElementById("field2").value = this.value;
     }
     function get_query_array(query_full) {
 
@@ -77,6 +71,12 @@
         // Find freq count of A-z letters in query
         var query_array = get_query_array(text)
         var frequencies = find_frequencies(query_array);
+        if (query_array.length < 1){
+            document.getElementById("something_bad").innerHTML="<br><br>Please enter something."
+        } else{
+            document.getElementById("something_bad").innerHTML = ""
+        }
+
         console.log(frequencies);
         var data = d3.entries(frequencies);
 
@@ -129,7 +129,7 @@
                 .attr("y", 6)
                 .attr("dy", ".71em")
                 .style("text-anchor", "end")
-                .text("Count");
+                ;
 
         // Bars
         svg.selectAll(".bar")
