@@ -39,30 +39,7 @@
 
 <!-- Fixed Navbar -->
 <nav class="navbar navbar-inverse navbar-fixed-top">
-    <div class="container">
-        <div class="navbar-header">
-            <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#navbar" aria-expanded="false" aria-controls="navbar">
-                <span class="sr-only">Toggle Navigation</span>
-                <span class="icon-bar"></span>
-                <span class="icon-bar"></span>
-                <span class="icon-bar"></span>
-            </button>
-            <a class="navbar-brand" href="#">MSN 622</a>
-        </div>
 
-        <div id="navbar" class="navbar-collapse collapse">
-            <ul class="nav navbar-nav">
-                <li><a href="#homework">Homework</a></li>
-                <li><a href="#project">Project</a></li>
-                <li><a href="#participation">Participation</a></li>
-            </ul>
-
-            <ul class="nav navbar-nav navbar-right">
-                <li><a href="#about">About</a></li>
-                <li><a href="#contact">Contact</a></li>
-            </ul>
-        </div><!--/.nav-collapse -->
-    </div>
 </nav>
 <div class="jumbotron">
     <div class="container">
@@ -101,7 +78,7 @@
 
     function get_query_array(query_full) {
         console.log(query_full)
-        var query_subset = query_full.replace(/[^A-z]/ig, '').toLowerCase();
+        var query_subset = query_full.replace(/[^A-Za-z]/ig, '').toLowerCase();
         var query_array = query_subset.split("");
 
         return query_array
