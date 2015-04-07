@@ -52,21 +52,48 @@
 
 <div class="container">
     <div class="row">
-        <div class="col-md-4"></div>
+        <div class="col-md-4">
+            <div class="well">
+                <h1>
+                    Grading stuff
+                </h1>
+                <br>
+                <h2>Aesthetics</h2>
+                <ul class="list-group">
+                    <li class="list-group-item">Changed axis text color</li>
+                    <li class="list-group-item">Changed axis text hover-over color</li>
+                    <li class="list-group-item">Thin grey y-axis grid lines</li>
+                    <li class="list-group-item">Sort alphabetically</li>
+                </ul>
+                <br>
+                <h2>C-Level</h2>
+                    <ul class="list-group">
+
+                        <li class="list-group-item">Pulls query string from URL, decodes it</li>
+                        <li class="list-group-item">Removes non-alphabet characters from query string, converts to lower case, and counts occurances</li>
+                        <li class="list-group-item">Outputs decoded text and couter to console</li>
+                        <li class="list-group-item">Displays non-interactive bar chart</li>
+                    </ul>
+                <br>
+
+                <br>
+                <h2>B-Level</h2>
+                <ul class="list-group">
+                    <li class="list-group-item">Page will by default load values from the query string. Populates chart as letters are typed into query box.</li>
+                </ul>
+            </div>
+        </div>
         <div class="col-md-4">
             <p style="text-align: center;">
                 <input type="text" id="field1" size="3" class="form-control" placeholder="Enter query here">
             </p>
         </div>
-        <div class="col-md-4"></div>
-        <div class="col-md-12">
+        <div class="col-md-8">
                 <h2 id="something_bad" style="text-align: center;"></h2>
                 <div id="chart" style="text-align: center;"></div>
         </div>
-
     </div>
 </div>
-
 
 
 
@@ -96,6 +123,8 @@
         // Find freq count of A-z letters in query
         var query_array = get_query_array(text)
         var frequencies = find_frequencies(query_array);
+
+        // Check if input string. If no input string, output error message
         if (query_array.length < 1){
             document.getElementById("something_bad").innerHTML="<br><br>Please enter something."
         } else{
@@ -132,7 +161,8 @@
                 .tickSize(-width);
 
         // Create clean svg element
-        d3.select("svg").remove()
+
+        d3.select("svg").remove();
         var svg = d3.select("#chart").append("svg")
                 .attr("width", width + margin.left + margin.right)
                 .attr("height", height + margin.top + margin.bottom)
@@ -157,7 +187,8 @@
                 ;
 
         // Bars
-        svg.selectAll(".bar")
+        var bars = svg.selectAll(".bar");
+        bars
                 .data(data)
                 .enter().append("rect")
                 .attr("class", "bar")
@@ -170,7 +201,10 @@
                 })
                 .attr("height", function (d) {
                     return height - y(+d.value);
-                });
+                })
+                ;
+
+
     }
 
     create_plot(decodeURI(window.location.search))
