@@ -312,8 +312,8 @@
         function plot(p) {
             var cell = d3.select(this);
 
-            x.domain(domainByTrait[p.x]);
-            y.domain(domainByTrait[p.y]);
+            x.domain([domainByTrait[p.x][0] *.95,domainByTrait[p.x][1] *1.2]);
+            y.domain([domainByTrait[p.y][0] *.95,domainByTrait[p.y][1] *1.2]);
 
             cell.append("rect")
                     .attr("class", "frame")
