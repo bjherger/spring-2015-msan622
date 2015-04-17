@@ -1,0 +1,340 @@
+<!DOCTYPE html>
+<html>
+<head lang="en">
+    <meta charset="UTF-8">
+    <title>Title!</title>
+    <link href="css/bootstrap.min.css" rel="stylesheet">
+    <link href="css/bootstrap-theme.min.css" rel="stylesheet">
+    <style>
+
+        svg {
+            font: 10px sans-serif;
+            padding: 10px;
+        }
+
+        .axis,
+        .frame {
+            shape-rendering: crispEdges;
+        }
+
+        .axis line {
+            stroke: #ddd;
+        }
+
+        .axis path {
+            display: none;
+        }
+
+        .frame {
+            fill: none;
+            stroke: #aaa;
+        }
+
+        /*circle {*/
+            /*fill-opacity: .7;*/
+        /*}*/
+
+        .bar {
+            fill: steelblue;
+        }
+
+
+        .axis {
+            font: 12px sans-serif;
+            fill: steelblue;
+        }
+        /*.y.axis line {*/
+            /*stroke: white;*/
+            /*stroke-width: .5px;*/
+        /*}*/
+
+        .axis path,
+
+        .x.axis path {
+            display: none;
+        }
+
+    </style>
+</head>
+<body>
+
+<!-- Fixed Navbar -->
+<nav class="navbar navbar-inverse navbar-fixed-top">
+
+</nav>
+<div class="jumbotron">
+    <div class="container">
+        <h1>HW2: States</h1>
+
+        <p>Lets look at the 50 states. </p>
+
+    </div>
+</div>
+
+<div class="container">
+    <div class="row">
+        <div class="col-md-8">
+            <h1>Who makes the most in overtime?</h1>
+            
+            <script type='text/javascript' src='https://public.tableau.com/javascripts/api/viz_v1.js'></script><div class='tableauPlaceholder' style='width: 1004px; height: 869px;'><noscript><a href='#'><img alt='Dashboard 1 ' src='https:&#47;&#47;public.tableau.com&#47;static&#47;images&#47;SF&#47;SFOvertime&#47;Dashboard1&#47;1_rss.png' style='border: none' /></a></noscript><object class='tableauViz' width='1004' height='869' style='display:none;'><param name='host_url' value='https%3A%2F%2Fpublic.tableau.com%2F' /> <param name='site_root' value='' /><param name='name' value='SFOvertime&#47;Dashboard1' /><param name='tabs' value='no' /><param name='toolbar' value='yes' /><param name='static_image' value='https:&#47;&#47;public.tableau.com&#47;static&#47;images&#47;SF&#47;SFOvertime&#47;Dashboard1&#47;1.png' /> <param name='animate_transition' value='yes' /><param name='display_static_image' value='yes' /><param name='display_spinner' value='yes' /><param name='display_overlay' value='yes' /><param name='display_count' value='yes' /><param name='showVizHome' value='no' /><param name='showTabs' value='y' /><param name='bootstrapWhenNotified' value='true' /></object></div>
+        </div>
+    </div>
+</div>
+
+
+
+
+
+
+<!--Load d3-->
+<script src="js/d3.min.js"></script>
+
+<!--Stuff to create chart-->
+<script>
+
+    d3.csv("data/stateData.csv", function(d) {
+        return {
+            name: d.name,
+            abbrev: d.abbrev,
+            pop: +d.pop,
+            income: +d.income,
+            illiteracy: +d.illiteracy,
+            lifeExp: +d.lifeExp,
+            murder: +d.murder,
+            hsGrad: +d.hsGrad,
+            frost: +d.frost,
+            area: +d.area,
+            region: d.region,
+            division: d.division
+        };
+    }, function(error, data) {
+//        console.log(data);
+
+        //Width and height
+
+        var margin = {top: 50, right: 50, bottom: 50, left: 50};
+        var width = 1200 - margin.left - margin.right;
+        var height = 500 - margin.top - margin.bottom;
+
+        var x = d3.scale.linear().range([margin.left + 20, width])
+        var y = d3.scale.linear().range([height, margin.top]);
+        var bubble = d3.scale.linear().range([1, 200]);
+
+        x.domain([
+            d3.min(data, function (d) {
+                return d.hsGrad;
+            }) *.9,
+            d3.max(data, function (d) {
+                return d.hsGrad;
+            })*1.1
+        ])
+
+        y.domain([
+            d3.min(data, function (d) {
+                return d.income;
+            }) *.9,
+            d3.max(data, function (d) {
+                return d.income;
+            }) *.95
+        ])
+
+        bubble.domain([
+            d3.min(data, function (d) {
+                return d.pop;
+            }),
+            d3.max(data, function (d) {
+                return d.pop;
+            })
+        ])
+
+        var xAxis = d3.svg.axis()
+                .scale(x)
+                .orient("bottom")
+                .tickFormat(function(d) { return  d + '%'; })
+                ;
+
+        var yAxis = d3.svg.axis()
+                .scale(y)
+                .orient("right")
+                .tickSize(0)
+                .tickPadding(20)
+                .tickFormat(function(d) { return  '$' + d; });
+
+        // Bubble chart
+        var svg = d3.select("#bubble_chart")
+                .append("svg")
+                .attr("width", width + margin.left + margin.right)
+                .attr("height", height + margin.top + margin.bottom)
+                .attr("transform", "translate(" + margin.left + "," + margin.top + ")")
+                ;
+
+        // X axis
+        svg.append("g")
+                .attr("class", "x axis")
+                .attr("transform", "translate(0," + height +")")
+                .call(xAxis)
+                ;
+
+
+        svg.append("text")
+                .attr("text-anchor", "middle")  // this makes it easy to centre the text as the transform is applied to the anchor
+                .attr("transform", "translate("+ (width/2) +","+(height +margin.bottom)+ ")")  // centre below axis
+                .text("Highschool graduation rate");
+
+        // Y axis
+        svg.append("g")
+                .attr("class", "y axis")
+                .call(yAxis)
+                .append("text")
+                .attr("stroke", "0")
+                .attr("transform", "translate(0," + width +")")
+                .attr("transform", "rotate(-90)")
+                .attr("y", 6)
+                .attr("dy", ".71em")
+                .style("text-anchor", "end");
+
+        svg.append("text")
+                .attr("text-anchor", "middle")  // this makes it easy to centre the text as the transform is applied to the anchor
+                .attr("transform", "translate("+ (10) +","+(height/2)+")rotate(-90)")  // text is drawn off the screen top left, move down and out and rotate
+                .text("Income");
+
+        svg.selectAll("circle")
+                .data(data)
+                .enter()
+                .append("circle")
+                .attr("cx", function(d) {
+                    return x(d.hsGrad);
+                })
+                .attr("cy", function(d) {
+                    return y(d.income);
+                })
+                .attr("r", function(d) {
+                    return Math.sqrt(bubble(d.pop));
+                })
+                .attr("fill", "blue")
+                .attr("opacity", ".20");
+
+        svg.selectAll("text")
+                .data(data)
+                .enter()
+                .append("text")
+                .text(function(d) {
+                    return d.abbrev ;
+                })
+                .attr("x", function(d) {
+                    return x(d.hsGrad) + Math.sqrt(bubble(d.pop));
+                })
+                .attr("y", function(d) {
+                    return y(d.income) + 3;
+                })
+                .attr("font-family", "sans-serif")
+                .attr("font-size", "11px")
+                .attr("fill", "grey");
+        console.log(svg)
+    });
+
+
+    d3.csv("data/stateData_subset.csv", function(error, data) {
+        var width = 960,
+                size = 150,
+                padding = 50;
+
+        var x = d3.scale.linear()
+                .range([padding *1 , size - padding *1]);
+
+        var y = d3.scale.linear()
+                .range([size - padding * 1, padding * 1]);
+
+        var xAxis = d3.svg.axis()
+                .scale(x)
+                .orient("bottom")
+                .ticks(3);
+
+        var yAxis = d3.svg.axis()
+                .scale(y)
+                .orient("left")
+                .ticks(3);
+
+        var color = d3.scale.category10();
+
+        var domainByTrait = {},
+                traits = d3.keys(data[0]).filter(function(d) { return d !== "region"; }),
+                n = traits.length;
+
+        traits.forEach(function(trait) {
+            domainByTrait[trait] = d3.extent(data, function(d) { return d[trait]; });
+        });
+
+        xAxis.tickSize(size * n);
+        yAxis.tickSize(-size * n);
+
+        var svg = d3.select("#scatter").append("svg")
+                .attr("width", size * n + padding)
+                .attr("height", size * n + padding)
+                .append("g")
+                .attr("transform", "translate(" + padding + "," + padding / 2 + ")");
+
+        svg.selectAll(".x.axis")
+                .data(traits)
+                .enter().append("g")
+                .attr("class", "x axis")
+                .attr("transform", function(d, i) { return "translate(" + (n - i - 1) * size + ",0)"; })
+                .each(function(d) { x.domain(domainByTrait[d]); d3.select(this).call(xAxis); });
+
+        svg.selectAll(".y.axis")
+                .data(traits)
+                .enter().append("g")
+                .attr("class", "y axis")
+                .attr("transform", function(d, i) { return "translate(0," + i * size + ")"; })
+                .each(function(d) { y.domain(domainByTrait[d]); d3.select(this).call(yAxis); });
+
+        var cell = svg.selectAll(".cell")
+                .data(cross(traits, traits))
+                .enter().append("g")
+                .attr("class", "cell")
+                .attr("transform", function(d) { return "translate(" + (n - d.i - 1) * size + "," + d.j * size + ")"; })
+                .each(plot);
+
+        // Titles for the diagonal.
+        cell.filter(function(d) { return d.i === d.j; }).append("text")
+                .attr("x", padding)
+                .attr("y", padding)
+                .attr("dy", ".71em")
+                .text(function(d) { return d.x; });
+
+        function plot(p) {
+            var cell = d3.select(this);
+
+            x.domain([domainByTrait[p.x][0] *.95,domainByTrait[p.x][1] *1.2]);
+            y.domain([domainByTrait[p.y][0] *.95,domainByTrait[p.y][1] *1.2]);
+
+            cell.append("rect")
+                    .attr("class", "frame")
+                    .attr("x", padding / 2)
+                    .attr("y", padding / 2)
+                    .attr("width", size - padding)
+                    .attr("height", size - padding);
+
+            cell.selectAll("circle")
+                    .data(data)
+                    .enter().append("circle")
+                    .attr("cx", function(d) { return x(d[p.x]); })
+                    .attr("cy", function(d) { return y(d[p.y]); })
+                    .attr("r", 3)
+                    .style("fill", function(d) { return color(d.region); })
+                    .attr("opacity", ".50");;
+        }
+
+        function cross(a, b) {
+            var c = [], n = a.length, m = b.length, i, j;
+            for (i = -1; ++i < n;) for (j = -1; ++j < m;) c.push({x: a[i], i: i, y: b[j], j: j});
+            return c;
+        }
+
+
+    });
+
+</script>
+
+</body>
+</html>
