@@ -1,0 +1,347 @@
+<!DOCTYPE html>
+<html>
+<head lang="en">
+    <meta charset="UTF-8">
+    <title>Title!</title>
+    <link href="css/bootstrap.min.css" rel="stylesheet">
+    <link href="css/bootstrap-theme.min.css" rel="stylesheet">
+    <style>
+
+        svg {
+            font: 10px sans-serif;
+            padding: 10px;
+        }
+
+        .axis,
+        .frame {
+            shape-rendering: crispEdges;
+        }
+
+        .axis line {
+            stroke: #ddd;
+        }
+
+        .axis path {
+            display: none;
+        }
+        .overlay {
+          fill: none;
+          pointer-events: all;
+}
+
+        .frame {
+            fill: none;
+            stroke: #aaa;
+        }
+
+        /*circle {*/
+        /*fill-opacity: .7;*/
+        /*}*/
+
+        .bar {
+            fill: steelblue;
+        }
+
+
+        .axis {
+            font: 12px sans-serif;
+            fill: steelblue;
+        }
+        /*.y.axis line {*/
+        /*stroke: white;*/
+        /*stroke-width: .5px;*/
+        /*}*/
+
+        .axis path,
+
+        .x.axis path {
+            display: none;
+        }
+
+    </style>
+</head>
+<body>
+
+<!-- Fixed Navbar -->
+<nav class="navbar navbar-inverse navbar-fixed-top">
+
+</nav>
+<div class="jumbotron">
+    <div class="container">
+        <h1>HW3: Seatbelts</h1>
+
+        <p>'cause in the 70's, they were less of a big deal. </p>
+
+    </div>
+</div>
+
+<div class="container">
+<div class = 'well'>
+        <div class="row">
+
+            <div class="col-md-12">
+                <h1>Hey!</h1>
+                <p>
+                    Hey, I'm Brendan. This is a quick look at automobile related deaths in the UK from January 1969-
+                    December 1984.
+                    <br>
+                    <br>
+                    I've transformed this data a bit in python, so that it has appropriate date fields
+                    and is tab delimited.
+                    <br>
+                    <br>
+                    I've also made a few design choices to make these charts approachable and intersting. The heat
+                    map is segmented by month with rings displaying individuals years, to highlight seasonal trends
+                    and allow for easy year-to-year comparison. The contextual display of number of drivers is also
+                    stationary (instead of moving with the cursor), allowing easier comparison of values.
+                    Furthermore, the multi-series line chart has a line uniting the three variables. While the label
+                    for the current time is alighted with the moving line, statistics for the three variables are
+                    statically placed, allowing for easier comparison across years.
+                </p>
+            </div>
+            <div class="col-md-6">
+                    <h3>C-Level</h3>
+                        <ul class="list-group">
+                            <li class="list-group-item">Radial Heatmap</li>
+                            <li class="list-group-item">Multi-Series Line Plot</li>
+                        </ul>
+                    <br>
+                </div>
+            <div class="col-md-6">
+                    <h3>B-Level</h3>
+                        <ul class="list-group">
+                            <li class="list-group-item">Detail on demand: Radial Heatmap provides number of drivers
+                            killed based on mouse placement</li>
+                            <li class="list-group-item">Detail on demand: Multi-Series Line Plot provides
+                                statistics for all variables based on mouse position</li>
+                        </ul>
+                    <br>
+
+            </div>
+        </div>
+
+    </div>
+    <div class="row">
+        <div class="col-md-12">
+            <h1>Driver deaths over time</h1>
+            <h2></h2>
+            <h3><div id="info">Hover over for total number of drivers killed.</div></h3>
+            <div id="chart" style="text-align: center;"></div>
+        </div>
+    </div>
+    <div class="row">
+        <div class="col-md-12">
+            <h1>Auto accident deaths over time</h1>
+
+            <p><div id="info-line">Hover over for total number of drivers killed.<br><br>.</div></p>
+            <div id="chart-line" style="text-align: center;"></div>
+        </div>
+    </div>
+</div>
+
+
+<!--Load d3-->
+<script src="js/d3.min.js"></script>
+
+<!--Load headmap circles-->
+<script src="js/circularHeatChart.js"></script>
+
+<!--Create the Circular heat chart-->
+<script>
+
+    var driver_death_data = ["107", "97", "102", "87", "119", "106", "110", "106", "107", "134", "147", "180", "125",
+        "134", "110", "102", "103", "111", "120", "129", "122", "183", "169", "190", "134", "108", "104", "117", "157",
+        "148", "130", "140", "136", "140", "187", "150", "159", "143", "114", "127", "159", "156", "138", "120", "117",
+        "170", "168", "198", "144", "146", "109", "131", "151", "140", "153", "140", "161", "168", "152", "136", "113",
+        "100", "103", "103", "121", "134", "133", "129", "144", "154", "156", "163", "122", "92", "117", "95", "96",
+        "108", "108", "106", "140", "114", "158", "161", "102", "127", "125", "101", "97", "112", "112", "113", "108",
+        "128", "154", "162", "112", "79", "82", "127", "108", "110", "123", "103", "97", "140", "165", "183", "148",
+        "111", "116", "115", "100", "106", "134", "125", "117", "122", "153", "178", "114", "94", "128", "119", "111",
+        "110", "114", "118", "115", "132", "153", "171", "115", "95", "92", "100", "95", "114", "102", "104", "132",
+        "136", "117", "137", "111", "106", "98", "84", "94", "105", "123", "109", "130", "153", "134", "99", "115",
+        "104", "131", "108", "103", "115", "122", "122", "125", "137", "138", "152", "120", "95", "100", "89", "82",
+        "89", "60", "84", "113", "126", "122", "118", "92", "86", "81", "84", "87", "90", "79", "96", "122", "120",
+        "137", "154"];
+
+
+    var months = ['January', 'February', 'March', 'April', 'May', 'June', 'July',
+        'August', 'September', 'October', 'November', 'December'];
+    var years = [];
+    for(var i = 1969; i < 1985; i++)
+        i % 5 === 0 ? years.push(i) : years.push('');
+
+
+    var chart = circularHeatChart()
+            .segmentHeight(15)
+            .innerRadius(20)
+            .numSegments(12)
+            .domain([50, 200])
+            .range(['white', 'red'])
+            .segmentLabels(months)
+            .radialLabels(years)
+            .margin({top: 0, right: 0, bottom: 0, left: 0});;
+
+    d3.select('#chart')
+            .selectAll('svg')
+            .data([driver_death_data])
+            .enter()
+            .append('svg')
+            .call(chart)
+            .style('width', '560px')
+            .style('height', '560px');
+
+    d3.selectAll("#chart path").on('mouseover', function() {
+        var d = d3.select(this).data()[0];
+        d3.select("#info").text(d + ' driver deaths');
+    });
+
+    d3.selectAll("#chart svg").on('mouseout', function() {
+        d3.select("#info").text('Hover over for total number of drivers killed.');
+    });
+</script>
+
+<!--Create the line chart-->
+<script>
+
+    var margin = {top: 20, right: 150, bottom: 30, left: 50},
+            width = 960 - margin.left - margin.right,
+            height = 500 - margin.top - margin.bottom;
+
+    var parseDate = d3.time.format("%Y%m%d").parse;
+
+    var x = d3.time.scale()
+            .range([0, width]);
+
+    var y = d3.scale.linear()
+            .range([height, 0]);
+
+    var color = d3.scale.category10();
+
+    var xAxis = d3.svg.axis()
+            .scale(x)
+            .orient("bottom");
+
+    var yAxis = d3.svg.axis()
+            .scale(y)
+            .orient("left");
+
+    var line = d3.svg.line()
+            .interpolate("basis")
+            .x(function(d) { return x(d.date); })
+            .y(function(d) { return y(d.temperature); });
+
+    var svg = d3.select("#chart-line").append("svg")
+            .attr("width", width + margin.left + margin.right)
+            .attr("height", height + margin.top + margin.bottom)
+            .append("g")
+            .attr("transform", "translate(" + margin.left + "," + margin.top + ")");
+
+    d3.tsv("data/seatbelts_full.csv", function(error, data) {
+        color.domain(d3.keys(data[0]).filter(function(key) { return key !== "date"; }));
+
+        data.forEach(function(d) {
+            d.date = parseDate(d.date);
+        });
+
+        var y_variables = color.domain().map(function(name) {
+            return {
+                name: name,
+                values: data.map(function(d) {
+                    return {date: d.date, temperature: +d[name]};
+                })
+            };
+        });
+
+        x.domain(d3.extent(data, function(d) { return d.date; }));
+
+        y.domain([
+            d3.min(y_variables, function(c) { return d3.min(c.values, function(v) { return v.temperature; }); }),
+            d3.max(y_variables, function(c) { return d3.max(c.values, function(v) { return v.temperature; }); })
+        ]);
+
+        svg.append("g")
+                .attr("class", "x axis")
+                .attr("transform", "translate(0," + height + ")")
+                .call(xAxis);
+
+        svg.append("g")
+                .attr("class", "y axis")
+                .call(yAxis)
+                .append("text")
+                .attr("transform", "rotate(-90)")
+                .attr("y", 6)
+                .attr("dy", ".71em")
+                .style("text-anchor", "end")
+                .text("Number of deaths");
+
+        var city = svg.selectAll(".city")
+                .data(y_variables)
+                .enter().append("g")
+                .attr("class", "city");
+
+        city.append("path")
+                .attr("class", "line")
+                .attr("d", function(d) { return line(d.values); })
+                .style("stroke", function(d) { return color(d.name); })
+                .style('fill', 'None');
+
+        city.append("text")
+                .datum(function(d) { return {name: d.name, value: d.values[d.values.length - 1]}; })
+                .attr("transform", function(d) { return "translate(" + x(d.value.date) + "," + y(d.value.temperature) + ")"; })
+                .attr("x", 3)
+                .attr("dy", ".35em")
+                .text(function(d) { return d.name; });
+
+// begin test
+        var focus = svg.append("g")
+      .attr("class", "focus")
+      .style("display", "none");
+
+  focus.append("line")
+    .attr("r", 4.5)
+    .attr("x1", 0)  //<<== change your code here
+    .attr("y1", 0)
+    .attr("x2", 0)  //<<== and here
+    .attr("y2", height - margin.top - margin.bottom)
+    .style("stroke-width", 1)
+    .style("stroke", "grey")
+    .style("fill", "none");
+
+  focus.append("text")
+      .attr("x", 9)
+      .attr("dy", ".35em");
+
+  svg.append("rect")
+      .attr("class", "overlay")
+      .attr("width", width)
+      .attr("height", height)
+      .on("mouseover", function() { focus.style("display", null); })
+      .on("mouseout", function() { focus.style("display", "none"); })
+      .on("mousemove", mousemove);
+
+        var bisectDate = d3.bisector(function(d) { return d.date; }).left
+        var time_format = d3.time.format("%B %Y");
+  function mousemove() {
+    var x0 = x.invert(d3.mouse(this)[0]),
+        i = bisectDate(data, x0, 1),
+        d0 = data[i - 1],
+        d1 = data[i],
+        d = x0 - d0.date > d1.date - x0 ? d1 : d0;
+    focus.attr("transform", "translate(" + x(d.date) + "," + 50+ ")");
+    focus.select("text").text(
+      time_format(d.date)
+    )
+
+      d3.select("#info-line").html("Drivers killed: " + d['Drivers killed'] +
+"<br>Front seat passangers killed: " + d["Front seat passangers killed"] +
+"<br>Rear seat passangers killed: " + d["Rear seat passangers killed"]);
+
+  }
+
+
+    });
+
+</script>
+
+</body>
+</html>
