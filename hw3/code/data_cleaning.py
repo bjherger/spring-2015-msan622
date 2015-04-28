@@ -29,6 +29,7 @@ def main():
     df = df.rename(columns={'DriversKilled': 'Drivers killed',
                             'front': 'Front seat passangers killed',
                             'rear': 'Rear seat passangers killed'})
+
     df.to_csv('../data/seatbelts_full.csv', sep='\t', index=False)
 
 

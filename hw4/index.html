@@ -1,0 +1,453 @@
+<!DOCTYPE html>
+<html>
+<head lang="en">
+    <meta charset="UTF-8">
+    <title>Title!</title>
+    <link href="css/bootstrap.min.css" rel="stylesheet">
+    <link href="css/bootstrap-theme.min.css" rel="stylesheet">
+    <style>
+
+        svg {
+            font: 10px sans-serif;
+            padding: 10px;
+        }
+
+        .axis,
+        .frame {
+            shape-rendering: crispEdges;
+        }
+
+        .axis line {
+            stroke: #ddd;
+        }
+
+        .axis path {
+            display: none;
+        }
+        .overlay {
+          fill: none;
+          pointer-events: all;
+}
+
+        .frame {
+            fill: none;
+            stroke: #aaa;
+        }
+
+        /*circle {*/
+        /*fill-opacity: .7;*/
+        /*}*/
+
+        .bar {
+            fill: steelblue;
+        }
+
+
+        .axis {
+            font: 12px sans-serif;
+            fill: steelblue;
+        }
+        /*.y.axis line {*/
+        /*stroke: white;*/
+        /*stroke-width: .5px;*/
+        /*}*/
+
+        .axis path,
+
+        .x.axis path {
+            display: none;
+        }
+
+    </style>
+</head>
+<body>
+
+<!-- Fixed Navbar -->
+<nav class="navbar navbar-inverse navbar-fixed-top">
+
+</nav>
+<div class="jumbotron">
+    <div class="container">
+        <h1>HW4: Movies</h1>
+
+        <p> 'Cause I don't know which movies to watch. #FirstWorldProblems </p>
+
+    </div>
+</div>
+
+<div class="container">
+<div class = 'well'>
+        <div class="row">
+
+            <div class="col-md-12">
+                <h1>Hey!</h1>
+                <p>
+                    Hey, I'm Brendan. This is a quick look at movies.
+                    <br>
+                    <br>
+                    I've transformed this data a bit in python, so that it has an appropriately formatted genre field.
+                    and is tab delimited.
+                </p>
+            </div>
+            <div class="col-md-6">
+                    <h3>C-Level</h3>
+                        <ul class="list-group">
+                            <li class="list-group-item">Tableau Mockup</li>
+                        </ul>
+                    <br>
+                </div>
+            <div class="col-md-6">
+                    <h3>B-Level</h3>
+                        <ul class="list-group">
+                            <li class="list-group-item">All charts translated to D3</li>
+                        </ul>
+                    <br>
+
+            </div>
+        </div>
+
+    </div>
+    <div class="row">
+        <div class="col-md-12">
+            <h1>C: Tableau mockup</h1>
+
+            <script type='text/javascript' src='https://public.tableau.com/javascripts/api/viz_v1.js'>
+
+            </script>
+            <div class='tableauPlaceholder' style='width: 1006px; height: 869px;'><noscript>
+                <a href='#'><img alt='Dashboard 1 ' src='https:&#47;&#47;public.tableau.com&#47;static&#47;images&#47;hw&#47;hw4_mockup&#47;Dashboard1&#47;1_rss.png' style='border: none' />
+                </a></noscript>
+                <object class='tableauViz' width='1004' height='869' style='display:none;'>
+                    <param name='host_url' value='https%3A%2F%2Fpublic.tableau.com%2F' />
+                    <param name='site_root' value='' />
+                    <param name='name' value='hw4_mockup&#47;Dashboard1' />
+                    <param name='tabs' value='no' />
+                    <param name='toolbar' value='yes' />
+                    <param name='static_image' value='https:&#47;&#47;public.tableau.com&#47;static&#47;images&#47;hw&#47;hw4_mockup&#47;Dashboard1&#47;1.png' />
+                    <param name='animate_transition' value='yes' /><param name='display_static_image' value='yes' />
+                    <param name='display_spinner' value='yes' /><param name='display_overlay' value='yes' />
+                    <param name='display_count' value='yes' /><param name='showVizHome' value='no' />
+                    <param name='showTabs' value='y' /><param name='bootstrapWhenNotified' value='true' />
+                </object>
+            </div>
+        </div>
+    </div>
+    <div class="row">
+        <div class="col-md-12">
+            <h1>B: Graphs in D3</h1>
+
+            <div class="row">
+                <div class="col-md-12">
+                    <h3>Average ratings by genre, over time</h3>
+
+                    <p><div id="info-line">Hover over for averages.<br><br>.</div></p>
+                    <div id="chart-line" style="text-align: center;"></div>
+                </div>
+            </div>
+        </div>
+        <br>
+        <br>
+        <div class="col-md-12">
+            <h3>Rating Vs. Number of Votes</h3>
+            <p>Budget as bubble size, only showing movies with more than 40,000 votes</p>
+            <div id="bubble_chart" style="text-align: center;"></div>
+        </div>
+    </div>
+</div>
+
+
+<!--Load d3-->
+<script src="js/d3.min.js"></script>
+
+<!--Load headmap circles-->
+<script src="js/circularHeatChart.js"></script>
+
+
+<!--Create the line chart-->
+<script>
+
+    var margin = {top: 20, right: 150, bottom: 30, left: 50},
+            width = 960 - margin.left - margin.right,
+            height = 500 - margin.top - margin.bottom;
+
+    var parseDate = d3.time.format("%Y").parse;
+
+    var x = d3.time.scale()
+            .range([0, width]);
+
+    var y = d3.scale.linear()
+            .range([height, 0]);
+
+    var color = d3.scale.category10();
+
+    var xAxis = d3.svg.axis()
+            .scale(x)
+            .orient("bottom");
+
+    var yAxis = d3.svg.axis()
+            .scale(y)
+            .orient("left");
+
+    var line = d3.svg.line()
+            .interpolate("basis")
+            .x(function(d) { return x(d.date); })
+            .y(function(d) { return y(d.temperature); });
+
+    var svg = d3.select("#chart-line").append("svg")
+            .attr("width", width + margin.left + margin.right)
+            .attr("height", height + margin.top + margin.bottom)
+            .append("g")
+            .attr("transform", "translate(" + margin.left + "," + margin.top + ")");
+
+    d3.tsv("data/avg_rating_by_genre.csv", function(error, data) {
+        color.domain(d3.keys(data[0]).filter(function(key) { return key !== "date"; }));
+
+        data.forEach(function(d) {
+            d.date = parseDate(d.date)
+
+        });
+
+        var y_variables = color.domain().map(function(name) {
+            return {
+                name: name,
+                values: data.map(function(d) {
+                    return {date: d.date, temperature: +d[name]};
+                })
+            };
+        });
+
+        x.domain(d3.extent(data, function(d) { return d.date; }));
+
+        y.domain([
+            d3.min(y_variables, function(c) { return d3.min(c.values, function(v) { return v.temperature; }); }),
+            d3.max(y_variables, function(c) { return d3.max(c.values, function(v) { return v.temperature; }); })
+        ]);
+
+        svg.append("g")
+                .attr("class", "x axis")
+                .attr("transform", "translate(0," + height + ")")
+                .call(xAxis);
+
+        svg.append("g")
+                .attr("class", "y axis")
+                .call(yAxis)
+                .append("text")
+                .attr("transform", "rotate(-90)")
+                .attr("y", 6)
+                .attr("dy", ".71em")
+                .style("text-anchor", "end")
+                .text("Number of deaths");
+
+        var city = svg.selectAll(".city")
+                .data(y_variables)
+                .enter().append("g")
+                .attr("class", "city");
+
+        city.append("path")
+                .attr("class", "line")
+                .attr("d", function(d) { return line(d.values); })
+                .style("stroke", function(d) { return color(d.name); })
+                .style('fill', 'None');
+
+        city.append("text")
+                .datum(function(d) { return {name: d.name, value: d.values[d.values.length - 1]}; })
+                .attr("transform", function(d) { return "translate(" + x(d.value.date) + "," + y(d.value.temperature) + ")"; })
+                .attr("x", 3)
+                .attr("dy", ".35em")
+                .text(function(d) { return d.name; });
+
+// begin test
+        var focus = svg.append("g")
+      .attr("class", "focus")
+      .style("display", "none");
+
+  focus.append("line")
+    .attr("r", 4.5)
+    .attr("x1", 0)  //<<== change your code here
+    .attr("y1", 0)
+    .attr("x2", 0)  //<<== and here
+    .attr("y2", height - margin.top - margin.bottom)
+    .style("stroke-width", 1)
+    .style("stroke", "grey")
+    .style("fill", "none");
+
+  focus.append("text")
+      .attr("x", 9)
+      .attr("dy", ".35em");
+
+  svg.append("rect")
+      .attr("class", "overlay")
+      .attr("width", width)
+      .attr("height", height)
+      .on("mouseover", function() { focus.style("display", null); })
+      .on("mouseout", function() { focus.style("display", "none"); })
+      .on("mousemove", mousemove);
+
+        var bisectDate = d3.bisector(function(d) { return d.date; }).left
+        var time_format = d3.time.format("%B %Y");
+  function mousemove() {
+    var x0 = x.invert(d3.mouse(this)[0]),
+        i = bisectDate(data, x0, 1),
+        d0 = data[i - 1],
+        d1 = data[i],
+        d = x0 - d0.date > d1.date - x0 ? d1 : d0;
+    focus.attr("transform", "translate(" + x(d.date) + "," + 50+ ")");
+    focus.select("text").text(
+      time_format(d.date)
+    )
+
+      d3.select("#info-line").html("Action: " + d['Action'] +
+"<br>Romance: " + d["Romance"] +
+"<br>Comedy: " + d["Comedy"]);
+
+  }
+
+
+    });
+
+</script>
+
+<!--Bubbles!-->
+<script>
+
+    d3.csv("data/movies_with_genre_subset.csv", function(d) {
+        return {
+            name: d.name,
+            title: d.title,
+            budget: +d.budget,
+            rating: +d.rating,
+            votes: +d.votes
+        };
+    }, function(error, data) {
+//        console.log(data);
+
+        //Width and height
+
+        var margin = {top: 50, right: 50, bottom: 50, left: 50};
+        var width = 1200 - margin.left - margin.right;
+        var height = 500 - margin.top - margin.bottom;
+
+        var x = d3.scale.linear().range([margin.left + 20, width])
+        var y = d3.scale.linear().range([height, margin.top]);
+        var bubble = d3.scale.linear().range([1, 200]);
+
+        x.domain([
+            d3.min(data, function (d) {
+                return d.votes;
+            }) *.9,
+            d3.max(data, function (d) {
+                return d.votes;
+            })*1.1
+        ])
+
+        y.domain([
+            d3.min(data, function (d) {
+                return d.rating;
+            }) *.9,
+            d3.max(data, function (d) {
+                return d.rating;
+            }) *.95
+        ])
+
+        bubble.domain([
+            d3.min(data, function (d) {
+                return d.budget;
+            }),
+            d3.max(data, function (d) {
+                return d.budget;
+            })
+        ])
+
+        var xAxis = d3.svg.axis()
+                .scale(x)
+                .orient("bottom")
+//                .tickFormat(function(d) { return  d ; })
+                ;
+
+        var yAxis = d3.svg.axis()
+                .scale(y)
+                .orient("right")
+                .tickSize(0)
+                .tickPadding(20)
+//                .tickFormat(function(d) { return  d; })
+            ;
+
+        // Bubble chart
+        var svg = d3.select("#bubble_chart")
+                .append("svg")
+                .attr("width", width + margin.left + margin.right)
+                .attr("height", height + margin.top + margin.bottom)
+                .attr("transform", "translate(" + margin.left + "," + margin.top + ")")
+                ;
+
+        // X axis
+        svg.append("g")
+                .attr("class", "x axis")
+                .attr("transform", "translate(0," + height +")")
+                .call(xAxis)
+                ;
+
+
+        svg.append("text")
+                .attr("text-anchor", "middle")  // this makes it easy to centre the text as the transform is applied to the anchor
+                .attr("transform", "translate("+ (width/2) +","+(height +margin.bottom)+ ")")  // centre below axis
+                .text("Number of Votes");
+
+        // Y axis
+        svg.append("g")
+                .attr("class", "y axis")
+                .call(yAxis)
+                .append("text")
+                .attr("stroke", "0")
+                .attr("transform", "translate(0," + width +")")
+                .attr("transform", "rotate(-90)")
+                .attr("y", 6)
+                .attr("dy", ".71em")
+                .style("text-anchor", "end");
+
+        svg.append("text")
+                .attr("text-anchor", "middle")  // this makes it easy to centre the text as the transform is applied to the anchor
+                .attr("transform", "translate("+ (10) +","+(height/2)+")rotate(-90)")  // text is drawn off the screen top left, move down and out and rotate
+                .text("Rating");
+
+        svg.selectAll("circle")
+                .data(data)
+                .enter()
+                .append("circle")
+                .attr("cx", function(d) {
+                    return x(d.votes);
+                })
+                .attr("cy", function(d) {
+                    return y(d.rating);
+                })
+                .attr("r", function(d) {
+                    return Math.sqrt(bubble(d.budget));
+                })
+                .attr("fill", "blue")
+                .attr("opacity", ".20");
+
+//        svg.selectAll("text")
+//                .data(data)
+//                .enter()
+//                .append("text")
+//                .text(function(d) {
+//
+//                    return d.budget ;
+//                })
+//                .attr("x", function(d) {
+//                    return x(d.votes) + Math.sqrt(bubble(d.budget));
+//                })
+//                .attr("y", function(d) {
+//                    return y(d.rating);
+//                })
+//                .attr("font-family", "sans-serif")
+//                .attr("font-size", "11px")
+//                .attr("fill", "grey");
+//        console.log(svg)
+    });
+
+
+
+</script>
+</body>
+</html>
