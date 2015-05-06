@@ -1,0 +1,128 @@
+<!DOCTYPE html>
+
+<head>
+    <meta charset="utf-8">
+    <title>Symbol Map Demo</title>
+
+    <!-- load D3 and TopoJSON //-->
+    <script src="http://d3js.org/d3.v3.min.js" charset="utf-8"></script>
+    <script src="http://d3js.org/topojson.v1.min.js"></script>
+
+    <!-- load custom CSS and JavaScript //-->
+    <link rel="stylesheet" href="style.css">
+    <script src="script.js"></script>
+
+    <link href="css/bootstrap.min.css" rel="stylesheet">
+    <link href="css/bootstrap-theme.min.css" rel="stylesheet">
+
+ </head>
+
+<body>
+
+
+
+
+<!-- Fixed Navbar -->
+<nav class="navbar navbar-inverse navbar-fixed-top">
+
+</nav>
+<div class="jumbotron">
+    <div class="container">
+        <h1>HW5: Earthquakes</h1>
+        <p> 'Cause I like to shake, rattle & roll </p>
+    </div>
+</div>
+
+<div class="container">
+<div class = 'well'>
+        <div class="row">
+
+            <div class="col-md-12">
+                <h1>Hey!</h1>
+                <p>
+                    Hey, I'm Brendan. This is a quick look at earthquakes.
+                    <br>
+                    <br>
+                    I'm using data available from <a
+                        href="http://earthquake.usgs.gov/earthquakes/feed/v1.0/csv.php">
+                    http://earthquake.usgs.gov/earthquakes/feed/v1.0/csv.php</a> to have a look at recent earthquakes.
+                </p>
+            </div>
+            <div class="col-md-6">
+                    <h3>C-Level</h3>
+                        <ul class="list-group">
+                            <li class="list-group-item">Reusable symbol map</li>
+                            <li class="list-group-item">World projection / scaling</li>
+
+                        </ul>
+                    <br>
+                </div>
+            <div class="col-md-6">
+                    <h3>B-Level</h3>
+                        <ul class="list-group">
+                            <li class="list-group-item">Circle color by depth of earthquake</li>
+                        </ul>
+                    <br>
+            </div>
+        </div>
+
+    </div>
+    <div class="row">
+        <div class="col-md-12">
+            <h3>Earthquakes in the last 30 days</h3>
+            <p>Magnitude as bubble size, depth as color. Only showing Mag 4.5 +</p>
+            <div id="block">
+                <svg id="map" width="940" height="940"></svg>
+                <p id="log">A look at earthquakes round the world</p>
+            </div>
+        </div>
+
+    </div>
+</div>
+<script>
+/*
+ * For sample TopoJSON files, go to:
+ * https://gist.github.com/mbostock/4090846
+ */
+var base = "https://gist.githubusercontent.com/mbostock/4090846/raw/";
+var url = {
+    world: base + "world-50m.json",
+    earthquakes:  "4.5_month.csv"
+};
+
+// Uses reusable chart model
+// See http://bost.ocks.org/mike/chart/
+var chart = symbolMap();
+
+// Update how we access data (need the mag property)
+chart = chart.value(function(d) { return d.mag; });
+
+// Nested calls to trigger drawing in proper order
+d3.json(url.world, function(mapError, mapJSON) {
+    if (processError(mapError)) return;
+
+    // update map data
+    chart = chart.map(mapJSON);
+
+    // Wait until the map is drawn before loading
+    // and drawing the data values
+    d3.csv(url.earthquakes, function(dataError, dataJSON) {
+        if (processError(dataError)) return;
+
+        chart = chart.values(dataJSON);
+        chart("map");
+    });
+});
+
+//// Load state lookup information
+//// Possible some lookups will fail until this loads
+//d3.tsv(url.states, parseStateName, function(error, data) {
+//        if (processError(error)) return;
+//        chart = chart.lookup(data);
+//    }
+//);
+
+</script>
+
+</body>
+</html>
