@@ -63,8 +63,8 @@ function symbolMap() {
             console.warn("Unable to draw symbol map: missing data.");
             return;
         }
-
-        updateLog("A look at earthquaeks around the world");
+        
+        updateLog("Hover over a circle for more details");
 
         var svg = d3.select("svg#" + id);
         var bbox = svg.node().getBoundingClientRect();
